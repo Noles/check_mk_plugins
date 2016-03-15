@@ -1,0 +1,35 @@
+title: Poseidon Solution Monitors: Temperature Sensors
+agents: snmp
+catalog: hw/environment/poseidon
+license: GPL
+distribution: check_mk
+description:
+ Checks the Temperature Sensors of Poseidon devices.
+
+ Returns {WARN} or {CRIT} if the temperature is above or equal given levels.
+
+item:
+ The sensorDescr from SNMP.
+
+examples:
+ # set new default levels
+ poseidon_sensors_temp_default_levels = (50, 60)
+
+ # check temperature sensor "Rack C1" of sensor1 with default levels
+ checks += [
+    ("sensor1", "poseidon_sensors.temp", 'Rack C1', poseidon_sensors_temp_default_levels),
+ ]
+
+perfdata:
+ One value: The temperature in degree celsius, together with it's levels for {WARN}
+ and {CRIT}.
+
+inventory:
+ Creates one check per temperature sensor (sensorType != 3).
+
+[parameters]
+tuple (int, int): The two values are the levels for {WARN} and {CRIT}.
+
+[configuration]
+poseidon_sensors_temp_default_levels (int, int): The default levels for {WARN}
+ and {CRIT}, defaults to (35, 40).

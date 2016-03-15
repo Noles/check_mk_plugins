@@ -1,0 +1,36 @@
+title: Poseidon Solution Monitors: Humidity
+agents: snmp
+catalog: hw/environment/poseidon
+license: GPL
+distribution: check_mk
+description:
+ This check monitors the humidity of sensors attached
+ to poseidon devices.
+
+item:
+ The item is the sensor description of the sensor as string.
+
+perfdata:
+ the current humidity in percent, lower crit, lower warn, upper warn, upper crit
+
+inventory:
+ All available humidity sensors are automatically inventorized.
+
+examples:
+ # set default levels for all poseidon humidity sensors
+ poseidon_sensors_humidity_default_levels = (35, 40, 60, 65)
+
+ # to Overwrite the default levels levels for a sensor
+ check_parameters += [
+   ( ( lower crit, lower warn, upper warn, upper crit ), ['hostname'], ['Humidity Senor Name'] ),
+ ]
+
+[parameters]
+critical low (int): lower border for triggering critical level
+warning low (int): lower border for warning level
+warning high (int): upper border for triggering warning level
+critical high (int): upper border for critical level
+
+[configuration]
+poseidon_sensors_temp (int, int, int, int): default levels for lower critical lower warning
+ and upper warning, upper critical. Preset to ( 35, 40, 60, 65 ).
