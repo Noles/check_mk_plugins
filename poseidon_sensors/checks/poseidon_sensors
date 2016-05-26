@@ -60,7 +60,7 @@ poseidon_sensors_temp_default_levels = (35, 40)
 def inventory_poseidon_sensors_temp(info):
     inventory = []
     for sensor_name, sensor_value, sensor_type, sensor_unit in info:
-        if sensor_type != "3":
+        if sensor_type == "0":
             inventory.append( (sensor_name, "poseidon_sensors_temp_default_levels" ) )
     return inventory
 
