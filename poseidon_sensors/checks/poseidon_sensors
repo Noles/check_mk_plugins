@@ -69,7 +69,7 @@ def check_poseidon_sensors_temp(item, params, info):
         if sensor_name == item:
             sensor_value = saveint(sensor_value) / 10
 
-            return check_temperature(int(sensor_value), params)
+            return check_temperature(int(sensor_value), params, "poseidon_temp_%s" % item)
 
     return (3, "Sensor not found in SNMP data")
 
