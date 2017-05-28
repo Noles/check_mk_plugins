@@ -1,0 +1,13 @@
+title: Elasticsearch: Cluster
+agents: check_mk
+catalog: app/elasticsearch 
+license: GPL
+distribution: check_mk
+description:
+ This check monitors the Elasticsearch cluster.
+
+item:
+ The cluster status.
+
+inventory:
+ Cluster status only.

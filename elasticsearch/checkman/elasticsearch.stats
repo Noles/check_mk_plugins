@@ -1,0 +1,31 @@
+title: Elasticsearch: Stats
+agents: check_mk
+catalog: app/elasticsearch
+license: GPL
+distribution: check_mk
+description:
+ This check monitors the node stats for elasticsearch
+
+item:
+ The item is the stats name as string.
+
+perfdata:
+ the current used heap size in percent, upper warn, upper crit
+
+inventory:
+ heap_used_percent information.
+
+examples:
+ # set default levels for all poseidon humidity sensors
+ elasticsearch_stats_default_levels = {
+   'heap_used_percent':  (80,  90),
+ }
+
+[parameters]
+warning high (int): upper border for triggering warning level
+critical high (int): upper border for critical level
+
+[configuration]
+elasticsearch_stats_default_levels = {
+   'heap_used_percent':  (80,  90),
+}

@@ -1,0 +1,128 @@
+#!/usr/bin/python                                                                                                                                                                                             
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+#
+# Check_MK elasicsearch Plugin
+#
+# This program is free software;  you can redistribute it and/or modify it
+# under the  terms of the  GNU General Public License  as published by
+# the Free Software Foundation in version 2.  check_mk is  distributed
+# in the hope that it will be useful, but WITHOUT ANY WARRANTY;  with-
+# out even the implied warranty of  MERCHANTABILITY  or  FITNESS FOR A
+# PARTICULAR PURPOSE. See the  GNU General Public License for more de-
+# ails.  You should have  received  a copy of the  GNU  General Public
+# License along with GNU Make; see the file  COPYING.  If  not,  write
+# to the Free Software Foundation, Inc., 51 Franklin St,  Fifth Floor,
+# Boston, MA 02110-1301 USA.
+
+
+#<<<elasticsearch>>>
+#version 1.5.2
+#heap_used_in_bytes 2939993496
+#heap_max_in_bytes 4260102144
+#heap_committed_in_bytes 4260102144
+#heap_used_percent 69
+#cluster_status green
+
+
+elasticsearch_stats_fields = [
+    'heap_used_percent',
+]
+
+elasticsearch_stats_text = {
+    'heap_used_percent': '% used',
+}
+
+elasticsearch_stats_default_levels = {
+   'heap_used_percent':  (80,  90),
+}
+
+
+# the inventory function
+def inventory_elasticsearch_stats(checkname, info):
+   # begin with empty inventory
+   inventory = []
+ 
+   # loop over all output lines of the agent
+   for line in info:
+      field = line[0]
+      value = line[1]   # value is in the first column
+
+      if field in elasticsearch_stats_fields: # found at least one interesting field
+          new_item = "Elasticsearch %s" % (field)
+ 
+          inventory.append( (new_item, "", elasticsearch_stats_default_levels.get(field)) )
+   return inventory
+ 
+# the check function
+def check_elasticsearch_stats(item, params, info):
+   for field, value in info:
+        warn, crit = params
+        fullname = "Elasticsearch %s" % field
+
+        if fullname == item:
+            value = saveint(value)
+            infotext = "%d%s" % (value, elasticsearch_stats_text.get(field))
+
+            state, extrainfo, extraperf = check_levels(value, field, params)
+            perfdata = [ (field, value, warn, crit) ]
+            if extrainfo:
+                infotext += ", " + extrainfo
+                perfdata += extraperf # reference curve for predictive levels
+
+            return state, infotext, perfdata
+
+# declare the check to Check_MK
+check_info["elasticsearch.stats"] = {
+    "check_function"        : check_elasticsearch_stats,
+    "inventory_function"    : inventory_elasticsearch_stats,
+    "service_description"   : "%s",
+    "has_perfdata"          : True,
+    "group"                 : "ps",
+}
+
+# the inventory function
+def inventory_elasticsearch_cluster(checkname, info):
+   # begin with empty inventory
+   inventory = []
+ 
+   # loop over all output lines of the agent
+   for line in info:
+      field = line[0]
+      value = line[1]   # value is in the first column
+
+      if field == 'cluster_status' : 
+          new_item = "Elasticsearch %s" % (field)
+ 
+          inventory.append( (new_item, "", None) )
+   return inventory
+ 
+# the check function
+def check_elasticsearch_cluster(item, params, info):
+   for field, value in info:
+        fullname = "Elasticsearch %s" % field
+
+        if fullname == item:
+            infotext = "Status: %s" % (value)
+
+            #state, extrainfo, extraperf = check_levels(value, field, params)
+            #perfdata = [ (field, value, warn, crit) ]
+            #if extrainfo:
+            #    infotext += ", " + extrainfo
+            #    perfdata += extraperf # reference curve for predictive levels
+
+            #return state, infotext, perfdata
+            if value == 'green':
+                return 0, infotext
+            elif value == 'yellow':
+                return 1, infotext
+            else:
+                return 2, infotext
+
+# declare the check to Check_MK
+check_info["elasticsearch.cluster"] = {
+    "check_function"        : check_elasticsearch_cluster,
+    "inventory_function"    : inventory_elasticsearch_cluster,
+    "service_description"   : "%s",
+    "has_perfdata"          : False,
+    "group"                 : "ps",
+}
