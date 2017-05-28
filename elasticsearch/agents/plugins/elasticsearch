@@ -1,0 +1,48 @@
+#!/usr/bin/python                                                                                                                                                                                             
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+#
+# Check_MK elasicsearch Plugin
+#
+# This program is free software;  you can redistribute it and/or modify it
+# under the  terms of the  GNU General Public License  as published by
+# the Free Software Foundation in version 2.  check_mk is  distributed
+# in the hope that it will be useful, but WITHOUT ANY WARRANTY;  with-
+# out even the implied warranty of  MERCHANTABILITY  or  FITNESS FOR A
+# PARTICULAR PURPOSE. See the  GNU General Public License for more de-
+# ails.  You should have  received  a copy of the  GNU  General Public
+# License along with GNU Make; see the file  COPYING.  If  not,  write
+# to the Free Software Foundation, Inc., 51 Franklin St,  Fifth Floor,
+# Boston, MA 02110-1301 USA.
+
+import requests
+import socket
+import os
+import json
+
+elasticsearch = 'http://localhost:9200'
+
+print "<<<elasticsearch>>>"
+
+r = requests.get("{}/_nodes/{}".format(elasticsearch, socket.gethostname()))
+nodes_json = r.content
+if nodes_json:
+    nodes = json.loads(nodes_json)
+    for key, node in nodes['nodes'].items():
+        print "version {}".format(node['version'])
+
+r = requests.get("{}/_nodes/{}/stats/jvm".format(elasticsearch, socket.gethostname()))
+stats_json = r.content
+if stats_json:
+    stats = json.loads(stats_json)
+    for key, node in stats['nodes'].items():
+        mem = node['jvm']['mem']
+        print "heap_used_in_bytes {}".format(mem['heap_used_in_bytes'])
+        print "heap_max_in_bytes {}".format(mem['heap_max_in_bytes'])
+        print "heap_committed_in_bytes {}".format(mem['heap_committed_in_bytes'])
+        print "heap_used_percent {}".format(mem['heap_used_percent'])
+
+r = requests.get("{}/_cluster/health".format(elasticsearch))
+cluster_json = r.content
+if cluster_json:
+    cluster = json.loads(cluster_json)
+    print "cluster_status {}".format(cluster['status'])
