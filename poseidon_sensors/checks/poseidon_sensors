@@ -88,7 +88,10 @@ check_info["poseidon_sensors.temp"] = {
 # HUMIDITY
 #
 
-poseidon_sensors_humidity_default_levels = (10, 20, 40, 50)
+factory_settings["poseidon_sensors_humidity_default_levels"] = {
+    'levels': (40, 35),
+    'levels_lower': (60, 65),
+}
 
 def inventory_poseidon_sensors_humidity(info):
     inventory = []
@@ -101,16 +104,8 @@ def check_poseidon_sensors_humidity(item, params, info):
     for sensor_name, sensor_value, sensor_type, sensor_unit in info:
         if sensor_name == item:
             sensor_value = saveint(sensor_value) / 10
-            critlow, warnlow, warnhigh, crithigh = params
-            infotext = "%s %s  (warn/crit below %.1f/%.1f or above %.1f/%.1f %%)" % \
-                            ( sensor_value, sensor_unit, warnlow, critlow, warnhigh, crithigh)
-            perfdata = [ ( "humidity", sensor_value, critlow, warnlow, warnhigh, crithigh ) ]
-            if sensor_value <= critlow or sensor_value >= crithigh:
-                return (2, infotext, perfdata )
-            elif sensor_value <= warnlow or sensor_value >= warnhigh:
-                return (1, infotext, perfdata )
-            else:
-                return (0, infotext, perfdata )
+
+            return check_humidity(sensor_value, params)
 
     return (3, "Sensor not found in SNMP data")
 
@@ -122,4 +117,6 @@ check_info["poseidon_sensors.humidity"] = {
     "has_perfdata"          : True,
     "snmp_info"             : poseidon_sensors_info,
     "snmp_scan_function"    : poseidon_sensors_scan,
+    'default_levels_variable': 'poseidon_sensors_humidity_default_levels',
+    "includes"              : [ "humidity.include" ],
 }
